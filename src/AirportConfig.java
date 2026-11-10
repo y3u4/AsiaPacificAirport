@@ -13,7 +13,10 @@ public final class AirportConfig {
     public static final int MAX_ARRIVAL_GAP_MS = 2000;   // gap = rand.nextInt(2000) -> 0..1999 ms
 
     // ---- Congested scenario ----
-    public static final int PLANES_WAITING_FOR_CONGESTION = 2;   // 2 planes circling
+    // The emergency plane is the 5th or 6th plane to ARRIVE (random). Before it arrives the first 3 arrivals
+    // fill the airport and every earlier arrival is circling (1 circling if it is 5th, 2 if it is 6th).
+    public static final int FIRST_EMERGENCY_POSITION = 5;        // 1-based arrival position
+    public static final int LAST_EMERGENCY_POSITION = 6;
     public static final long CONGESTION_TIMEOUT_MS = 20_000;     // safety net so Main can never hang
 
     // ---- How long each step takes (ms). "Each step must take some time." ----

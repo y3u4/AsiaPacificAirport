@@ -87,12 +87,12 @@ public class AirTrafficControl extends Thread {
 
     /**
      * Used by the Simulator thread to build the congested scenario: blocks until the airport is full
-     * AND at least 2 planes are already circling. Uses wait(timeout) so it can never hang forever.
+     * AND at least 'minCircling' planes are already circling. Uses wait(timeout) so it can never hang forever.
      */
-    public boolean awaitCongestion(long timeoutMs) {
+    public boolean awaitCongestion(long timeoutMs, int minCircling) {
         long deadline = System.currentTimeMillis() + timeoutMs;
         synchronized (lock) {
-            while (!isCongested()) {                       // always wait in a loop (guards spurious wake-ups)
+            while (!isCongested(minCircling)) {                       // always wait in a loop (guards spurious wake-ups)
                 long remaining = deadline - System.currentTimeMillis();
                 if (remaining <= 0) {
                     return false;
@@ -278,7 +278,7 @@ public class AirTrafficControl extends Thread {
         throw new IllegalStateException("No free gate although ground count allowed a landing");
     }
 
-    private boolean isCongested() {
+    private boolean isCongested(int minCircling) {
         int circling = 0;
         for (RunwayRequest r : pending) {
             if (r.type == RunwayRequest.Type.LANDING && r.denialAnnounced) {
@@ -286,7 +286,7 @@ public class AirTrafficControl extends Thread {
             }
         }
         return groundCount >= AirportConfig.MAX_AIRCRAFT_ON_GROUND
-                && circling >= AirportConfig.PLANES_WAITING_FOR_CONGESTION;
+                && circling >= minCircling;
     }
 
     // =====================================================================
